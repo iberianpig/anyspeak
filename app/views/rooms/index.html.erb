@@ -1,0 +1,64 @@
+
+
+  <video id="video" muted autoplay></video>
+  <video id="others-video" autoplay></video>
+
+  <%= link_to "join", "#", onclick: 'send_user_id();'  %>
+
+  <% @users.each do |user| %>
+    <%= link_to "call to #{user.name}", "#", onclick: "callTo(\'#{user.connect_uid}\');"  %>
+  <% end %>
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+  <script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+  <script>
+$.ajaxSetup({
+  beforeSend: function(xhr) {
+    xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+  }
+});
+
+  // ベンダプレフィックスの差を吸収する
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+  //peerのIdを取得
+  var connect_uid;
+  var peer = new Peer({key: 'gezmoslk1bye3ik9'});
+  peer.on('open', function(id){
+    console.log(id);
+    $.post("update_connect_uid", {'connect_uid':id });
+  });
+
+var myStream;
+$(function(){
+  navigator.getUserMedia({audio: true, video: true}, function(stream){
+    myStream = stream;
+    $('#video').prop('src', URL.createObjectURL(stream));
+  }, function(){});
+});
+
+  //peer id の取得
+function callTo(peerId){
+  var peerId;
+  var call = peer.call(peerId, myStream);
+
+  call.on('stream', function(othersStream){
+    $('#others-video').prop('src', URL.createObjectURL(othersStream));
+  });
+}
+
+//受信側
+peer.on('call', function(call){
+  call.answer(myStream);
+
+  call.on('stream', function(othersStream){
+    $('#others-video').prop('src', URL.createObjectURL(othersStream));
+  });
+});
+
+
+  function send_user_id(){
+    $.get("/room/success_connect?connect_uid="+connect_id, function(data){
+    });
+  }
+
+  </script>

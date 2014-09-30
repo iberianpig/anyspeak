@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
     if user.blank?
       user = User.new
       user.provider = auth.provider
+      user.name = auth.info.name
       user.uid = auth.uid
       user.token = auth.credentials.token
       user.save!

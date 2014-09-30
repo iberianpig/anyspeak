@@ -6,12 +6,13 @@ root "rooms#index"
 match 'auth/:provider/callback', to: 'sessions#create', via: [:get, :post]
 
 # facebookのログイン・認証が失敗した後のリダイレクト先(auth/failure)とrootを紐づけ
-
 match 'auth/failure', to: redirect('/'), via: [:get, :post]
 
 # signout_urlとsession#destroyを紐づけ
-
 match 'signout', to: 'sessions#destroy', as: 'signout', via: [:get, :post]
+
+post 'update_connect_uid', to: 'rooms#update_connect_uid', as: 'update'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
