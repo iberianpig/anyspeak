@@ -6,7 +6,7 @@
 
 <div>
   <% @users.each do |user| %>
-    <%= link_to "call to #{user.name}", "#", onclick: "callTo(\'#{user.connect_uid}\');"  %>
+    <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});"  %>
   <% end %>
 </div>
 
@@ -37,9 +37,19 @@ $(function(){
   }, function(){});
 });
 
-  //peer id の取得
-function callTo(peerId){
+//peer id の取得
+function getPeerId(user_id){
   var peerId;
+  $.get("find_connect_uid/" + user_id, function(data){
+    peerId = data.connect_uid;
+    console.log(data.connect_uid);
+  });
+  return peerId;
+}
+
+//callする
+function callTo(user_id){
+  var peerId =  getPeerId(user_id);
   var call = peer.call(peerId, myStream);
 
   call.on('stream', function(othersStream){
@@ -57,8 +67,4 @@ peer.on('call', function(call){
 });
 
 
-  function send_user_id(){
-    $.get("/room/success_connect?connect_uid="+connect_id, function(data){
-    });
-  }
   </script>
