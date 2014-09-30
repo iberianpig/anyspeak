@@ -3,7 +3,6 @@ class SessionsController < ApplicationController
     auth = request.env['omniauth.auth']
     user = User.find_or_create_by_auth(auth)
     session[:user_id] = user.id
-    debugger
     redirect_to root_url
   end
 

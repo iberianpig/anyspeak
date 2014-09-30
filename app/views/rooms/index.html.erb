@@ -1,13 +1,14 @@
 
-
+<% if logged_in?  %>
   <video id="video" muted autoplay></video>
   <video id="others-video" autoplay></video>
+<% end %>
 
-  <%= link_to "join", "#", onclick: 'send_user_id();'  %>
-
+<div>
   <% @users.each do |user| %>
     <%= link_to "call to #{user.name}", "#", onclick: "callTo(\'#{user.connect_uid}\');"  %>
   <% end %>
+</div>
 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
@@ -60,5 +61,4 @@ peer.on('call', function(call){
     $.get("/room/success_connect?connect_uid="+connect_id, function(data){
     });
   }
-
   </script>
