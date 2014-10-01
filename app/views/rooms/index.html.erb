@@ -1,12 +1,27 @@
 <% if logged_in?  %>
-  <video id="video" muted autoplay></video>
-  <video id="others-video" autoplay></video>
-
-  <div>
-    <% @users.each do |user| %>
-      <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});", remote: true  %>
-    <% end %>
+  <div class="row">
+    <div class="col-xs-12 col-md-8">
+      <video id="others-video" autoplay style="width:100%;"></video>
+    </div>
+    <div class="col-xs-12 col-md-4">
+      <div class="row clearfix">
+        <div class="col-xs-4 col-md-6">
+          <video id="video" muted autoplay style="width:100%;" ></video>
+          <div class="log"></div>
+        </div>
+        <div class="col-xs-8 col-md-6">
+          <ul style="list-style:none;">
+          <% @users.each do |user| %>
+            <li style="margin-bottom:5px">
+              <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});", remote: true, class:"btn btn-lg btn-primary"  %>
+            </li>
+          <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
+
 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
@@ -20,10 +35,12 @@ $.ajaxSetup({
 
 // ベンダプレフィックスの差を吸収する
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-//peerのIdを取得
+
+//peerのId( 自分のID )を取得
 var peer = new Peer({key: 'gezmoslk1bye3ik9'});
 peer.on('open', function(id){
   console.log("myId: " + id);
+  $( "div.log" ).text( "myId: " + id);
   $.post("update_connect_uid", {'connect_uid':id });
 });
 
@@ -51,7 +68,6 @@ function callTo(user_id){
   });
 }
 
-
 //受信した時の処理
 peer.on('call', function(call){
   call.answer(myStream);
@@ -59,6 +75,12 @@ peer.on('call', function(call){
   call.on('stream', function(othersStream){
     $('#others-video').prop('src', URL.createObjectURL(othersStream));
   });
+});
+
+//エラー時のログ
+peer.on('error', function(e){
+  console.log(e.message);
+  $('div.log').text( e.messge );
 });
 
   </script>
