@@ -1,33 +1,31 @@
-
 <% if logged_in?  %>
   <video id="video" muted autoplay></video>
   <video id="others-video" autoplay></video>
-<% end %>
 
-<div>
-  <% @users.each do |user| %>
-    <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});"  %>
-  <% end %>
-</div>
+  <div>
+    <% @users.each do |user| %>
+      <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});", remote: true  %>
+    <% end %>
+  </div>
 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
   <script>
+  // CSRF-TokenをAjaxのヘッダに突っ込む
 $.ajaxSetup({
   beforeSend: function(xhr) {
     xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
   }
 });
 
-  // ベンダプレフィックスの差を吸収する
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-  //peerのIdを取得
-  var connect_uid;
-  var peer = new Peer({key: 'gezmoslk1bye3ik9'});
-  peer.on('open', function(id){
-    console.log(id);
-    $.post("update_connect_uid", {'connect_uid':id });
-  });
+// ベンダプレフィックスの差を吸収する
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+//peerのIdを取得
+var peer = new Peer({key: 'gezmoslk1bye3ik9'});
+peer.on('open', function(id){
+  console.log("myId: " + id);
+  $.post("update_connect_uid", {'connect_uid':id });
+});
 
 var myStream;
 $(function(){
@@ -37,27 +35,24 @@ $(function(){
   }, function(){});
 });
 
-//peer id の取得
-function getPeerId(user_id){
-  var peerId;
-  $.get("find_connect_uid/" + user_id, function(data){
-    peerId = data.connect_uid;
-    console.log(data.connect_uid);
-  });
-  return peerId;
-}
-
-//callする
+//target peer id の取得とCall
 function callTo(user_id){
-  var peerId =  getPeerId(user_id);
-  var call = peer.call(peerId, myStream);
+  $.ajax({
+      type: "get",
+      url: "find_connect_uid/" + user_id,
+      success: function(data){
+        var peerId = data.connect_uid;
+        var call = peer.call(peerId, myStream);
 
-  call.on('stream', function(othersStream){
-    $('#others-video').prop('src', URL.createObjectURL(othersStream));
+        call.on('stream', function(othersStream){
+          $('#others-video').prop('src', URL.createObjectURL(othersStream));
+        });
+      }
   });
 }
 
-//受信側
+
+//受信した時の処理
 peer.on('call', function(call){
   call.answer(myStream);
 
@@ -66,5 +61,5 @@ peer.on('call', function(call){
   });
 });
 
-
   </script>
+<% end %>
