@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
   end
 
   def connectable?
-    if connect_uid && updated_at >= Time.now.advance(minutes: -2)
+    if connect_uid && updated_at >= Time.now.advance(seconds: -30)
       return true
     else
       return false

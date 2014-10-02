@@ -35,11 +35,22 @@ $.ajaxSetup({
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 //peerのId( 自分のID )を取得
+var my_id;
 var peer = new Peer({key: 'gezmoslk1bye3ik9'});
 peer.on('open', function(id){
-  console.log("myId: " + id);
-  $( "div.log" ).text( "myId: " + id);
-  update_connect_uid(id);
+  my_id = id;
+  console.log("my_id): " + my_id);
+  $( "div.log" ).text( "myid: " + my_id);
+});
+
+function update_connect_uid(id){
+  $.post("update_connect_uid", {'connect_uid':id });
+}
+
+$(function(){
+  setInterval(function(){
+    update_connect_uid(my_id);
+  },5000);
 });
 
 var myStream;
@@ -66,9 +77,6 @@ function callTo(user_id){
   });
 }
 
-function update_connect_uid(id){
-  $.post("update_connect_uid", {'connect_uid':id });
-}
 
 //受信した時の処理
 peer.on('call', function(call){

@@ -21,7 +21,9 @@ class RoomsController < ApplicationController
 
   def update_connect_uid
     if logged_in? && params[:connect_uid]
-      current_user.update_attributes(connect_uid: params[:connect_uid])
+      current_user.update_attributes(
+        connect_uid: params[:connect_uid],
+        updated_at: Time.now)
     end
     render nothing: true
   end
