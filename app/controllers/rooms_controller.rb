@@ -1,10 +1,12 @@
+# For main page controller
 class RoomsController < ApplicationController
+  # before_action :require_authentication, without: :index
 
   def index
     if logged_in?
       @users = User.where.not(id: current_user.id)
     else
-      @users = User.none
+      @users = User.none if @users.nil?
     end
   end
 

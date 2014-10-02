@@ -9,14 +9,8 @@
           <video id="video" muted autoplay style="width:100%;" ></video>
           <div class="log"></div>
         </div>
-        <div class="col-xs-8 col-md-6">
-          <ul style="list-style:none;">
-          <% @users.each do |user| %>
-            <li style="margin-bottom:5px">
-              <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});", remote: true, class:"btn btn-lg btn-primary"  %>
-            </li>
-          <% end %>
-          </ul>
+        <div id="user_list" class='col-xs-8 col-md-6'>
+          <%= render partial: 'user_list' %>
         </div>
       </div>
     </div>
@@ -41,7 +35,7 @@ var peer = new Peer({key: 'gezmoslk1bye3ik9'});
 peer.on('open', function(id){
   console.log("myId: " + id);
   $( "div.log" ).text( "myId: " + id);
-  $.post("update_connect_uid", {'connect_uid':id });
+  update_connect_uid(id);
 });
 
 var myStream;
@@ -66,6 +60,10 @@ function callTo(user_id){
         });
       }
   });
+}
+
+function update_connect_uid(id){
+  $.post("update_connect_uid", {'connect_uid':id });
 }
 
 //受信した時の処理

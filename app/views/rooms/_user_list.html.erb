@@ -1,0 +1,10 @@
+<ul style="list-style:none;">
+<i class="fa fa-users ">UsersList</i>
+<%= link_to '<i class="fa fa-refresh fa-1g"></i>'.html_safe , controller: :rooms, action: :index, remote: true, method: "get" %>
+  <% @users.each do |user| %>
+    <li style="margin-bottom:5px">
+      <%= link_to "call to #{user.name}", "#", onclick: "callTo(#{user.id});", remote: true, class: "btn btn-sm  #{user.connectable? ? 'btn-primary' : 'btn-default disabled'}"  %>
+    </li>
+  <% end %>
+</ul>
+
