@@ -1,12 +1,16 @@
 <% if logged_in?  %>
   <div class="row">
     <div class="col-xs-12 col-md-8">
-      <video id="others-video" autoplay style="width:100%;"></video>
+      <div class="embed-responsive embed-responsive-4by3">
+        <video id="others-video" autoplay style="width:100%;"></video>
+      </div>
     </div>
     <div class="col-xs-12 col-md-4">
       <div class="row clearfix">
         <div class="col-xs-4 col-md-6">
-          <video id="video" muted autoplay style="width:100%;" ></video>
+          <div class="embed-responsive embed-responsive-4by3">
+            <video id="video" muted autoplay style="width:100%;" ></video>
+          </div>
           <div class="log"></div>
         </div>
         <div id="user_list" class='col-xs-8 col-md-6'>

@@ -4,10 +4,11 @@
   <title>Anyspeak</title>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <meta name="viewport" content="width=device&#45;width, initial&#45;scale=1"> -->
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
   <%= csrf_meta_tags %>
 </head>
-  <body style="padding-top:70px;">
+  <body>
     <%= render partial: 'navbar' %>
     <div class="container">
       <p id="notice"><%= notice %></p>
