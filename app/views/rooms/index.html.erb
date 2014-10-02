@@ -50,8 +50,17 @@ function update_connect_uid(id){
 $(function(){
   setInterval(function(){
     update_connect_uid(my_id);
-  },5000);
+    update_user_status();
+  },10000);
 });
+
+function update_user_status(){
+  $.ajax({
+      type: "get",
+      url: "",
+      dataType: "script"
+  });
+}
 
 var myStream;
 $(function(){
