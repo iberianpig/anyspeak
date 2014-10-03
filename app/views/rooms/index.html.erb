@@ -2,16 +2,32 @@
   <div class="row">
     <div class="col-xs-12 col-md-8">
       <div class="embed-responsive embed-responsive-4by3">
-        <video id="others-video" autoplay style="width:100%;"></video>
+        <div id="others-jumbotron" class="jumbotron">
+          <h1>Enjoy AnySpeak!</h1>
+          <p>
+          ここに通話相手の映像が表示されます。<br>
+          <h5 style="font-size:0.8;">
+            マイク/カメラ付きのPCでなければ利用できません。<br>
+            最新のChrome/Firefoxのみサポートしています <br>
+          </h5>
+          <br>
+          </p>
+        </div>
+        <video id="others-video" class="hide" autoplay style="width:100%;"></video>
       </div>
     </div>
     <div class="col-xs-12 col-md-4">
       <div class="row clearfix">
         <div class="col-xs-4 col-md-6">
           <div class="embed-responsive embed-responsive-4by3">
-            <video id="video" muted autoplay style="width:100%;" ></video>
+            <div id="my-jumbotron" class="jumbotron">
+            </div>
+            <video id="my-video" muted autoplay style="width:100%;" ></video>
           </div>
           <div class="log"></div>
+          <div>
+            <%= link_to "disconnect", "", onclick: "resetPeer();",class:"btn btn-warning btn-lg" %> 
+          </div>
         </div>
         <div id="user_list" class='col-xs-8 col-md-6'>
           <%= render partial: 'user_list' %>
@@ -34,14 +50,19 @@ $.ajaxSetup({
 // ベンダプレフィックスの差を吸収する
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-//peerのId( 自分のID )を取得
 var my_id;
-var peer = new Peer({key: 'gezmoslk1bye3ik9'});
-peer.on('open', function(id){
-  my_id = id;
-  console.log("my_id): " + my_id);
-  $( "div.log" ).text( "myid: " + my_id);
-});
+var peer; 
+getNewPeer();
+
+//peerのId( 自分のID )を取得
+function getNewPeer(){
+  peer = new Peer({key: 'gezmoslk1bye3ik9'});
+  peer.on('open', function(id){
+    my_id = id;
+    console.log("my_id): " + my_id);
+    $( "div.log" ).text( "myid: " + my_id);
+  });
+}
 
 function update_connect_uid(id){
   $.post("update_connect_uid", {'connect_uid':id });
@@ -51,8 +72,36 @@ $(function(){
   setInterval(function(){
     update_connect_uid(my_id);
     update_user_status();
-  },10000);
+  },15000);
 });
+
+//close and reset my connetion
+function resetPeer(){
+  peer.destroy();
+  hideDisplay('others-video', true);
+  getNewPeer();
+  hideDisplay('my-video', true);
+}
+
+function hideDisplay(display, bool){
+  if(display==='others-video'){
+    if(bool===true){
+      $("#others-jumbotron").removeClass('hide');
+      $("#others-video").addClass('hide');
+    }else{
+      $("#others-jumbotron").addClass('hide');
+      $("#others-video").removeClass('hide');
+    }
+  }else if(display==='my-video'){
+    if(bool===true){
+      $("#my-jumbotron").removeClass('hide');
+      $("#my-video").addClass('hide');
+    }else{
+      $("#my-jumbotron").addClass('hide');
+      $("#my-video").removeClass('hide');
+    }
+  }
+}
 
 //sync user_list partial
 function update_user_status(){
@@ -67,7 +116,8 @@ var myStream;
 $(function(){
   navigator.getUserMedia({audio: true, video: true}, function(stream){
     myStream = stream;
-    $('#video').prop('src', URL.createObjectURL(stream));
+    $('#my-video').prop('src', URL.createObjectURL(stream));
+    hideDisplay('my-video', false);
   }, function(){});
 });
 
@@ -83,10 +133,10 @@ function callTo(user_id){
         call.on('stream', function(othersStream){
           $('#others-video').prop('src', URL.createObjectURL(othersStream));
         });
+        hideDisplay('others-video', false);
       }
   });
 }
-
 
 //受信した時の処理
 peer.on('call', function(call){
@@ -95,6 +145,7 @@ peer.on('call', function(call){
   call.on('stream', function(othersStream){
     $('#others-video').prop('src', URL.createObjectURL(othersStream));
   });
+  hideDisplay('others-video', false);
 });
 
 //エラー時のログ
@@ -123,3 +174,4 @@ peer.on('error', function(e){
     </p>
   </div>
 <% end %>
+
