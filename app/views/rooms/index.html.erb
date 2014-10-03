@@ -54,6 +54,7 @@ $(function(){
   },10000);
 });
 
+//sync user_list partial
 function update_user_status(){
   $.ajax({
       type: "get",
@@ -103,4 +104,22 @@ peer.on('error', function(e){
 });
 
   </script>
+<% else %>
+  <div class="jumbotron">
+    <h1>Welcome to AnySpeak!</h1>
+    <p>
+    AnySpeakではブラウザだけで簡単にVideo通話ができます。<br>
+    Facebookアカウントさえあればすぐに利用可能です。<br>
+    </p>
+     <%= link_to "Start AnySpeak", "/auth/facebook", class:"btn btn-primary btn-lg" %> 
+    <p>
+    <h5 style="font-size:0.5em;">
+      Facebookログイン機能を利用します。
+      アプリがWallなどに勝手に投稿することはありません。<br><br>
+      マイク/カメラ付きのPCでなければ利用できません。<br>
+      また、最新のChrome/Firefoxのみ動作確認済です。(safariは利用不可) <br>
+    </h5>
+    <br>
+    </p>
+  </div>
 <% end %>

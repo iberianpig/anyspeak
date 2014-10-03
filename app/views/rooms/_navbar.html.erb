@@ -30,7 +30,7 @@
               <% if current_user %>
                 <li><%= link_to "Logout" ,signout_path %></li>
               <% else %>
-                <li> <%= link_to "facebookでLogin", "/auth/facebook" %> </li>
+                <li> <%= link_to "Login with facebook", "/auth/facebook" %> </li>
               <% end %>
             </ul>
           </li>
