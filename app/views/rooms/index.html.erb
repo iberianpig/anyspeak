@@ -40,18 +40,16 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
   <script>
-  // CSRF-TokenをAjaxのヘッダに突っ込む
-$.ajaxSetup({
-  beforeSend: function(xhr) {
-    xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-  }
-});
+
+// CSRF-TokenをAjaxのヘッダに突っ込む
 
 // ベンダプレフィックスの差を吸収する
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 var my_id;
 var peer; 
+var timer_for_update;
+
 getNewPeer();
 
 //peerのId( 自分のID )を取得
@@ -61,26 +59,45 @@ function getNewPeer(){
     my_id = id;
     console.log("my_id): " + my_id);
     $( "div.log" ).text( "myid: " + my_id);
+    startTimer();
   });
 }
 
-function update_connect_uid(id){
-  $.post("update_connect_uid", {'connect_uid':id });
+function startTimer(){
+  timer_for_update = setInterval(function(){
+    updateConnectUid();
+    updateUserStatus();
+  },5000);
 }
 
-$(function(){
-  setInterval(function(){
-    update_connect_uid(my_id);
-    update_user_status();
-  },15000);
-});
+function stopTimer(){
+  clearInterval(timer_for_update);
+}
+
+function updateConnectUid(){
+  var csrfToken = $('meta[name="csrf-token"]').attr('content');
+  $.ajax({
+    type: "post",
+    cache: false,
+    url: "update_connect_uid",
+    data: {'connect_uid': peer.id,
+      'authenticity_token': csrfToken
+    }
+  })
+  .done(function( msg ) {
+    console.log("update_id:"+ peer.id);
+  });
+}
+
 
 //close and reset my connetion
 function resetPeer(){
   peer.destroy();
   hideDisplay('others-video', true);
+  stopTimer();
   getNewPeer();
   hideDisplay('my-video', true);
+  updateConnectUid();
 }
 
 function hideDisplay(display, bool){
@@ -104,7 +121,7 @@ function hideDisplay(display, bool){
 }
 
 //sync user_list partial
-function update_user_status(){
+function updateUserStatus(){
   $.ajax({
       type: "get",
       url: "",
@@ -123,18 +140,22 @@ $(function(){
 
 //target peer id の取得とCall
 function callTo(user_id){
+  console.log("find:"+ user_id);
   $.ajax({
-      type: "get",
-      url: "find_connect_uid/" + user_id,
-      success: function(data){
-        var peerId = data.connect_uid;
-        var call = peer.call(peerId, myStream);
+    type: "get",
+    cache: false,
+    url: "find_connect_uid/" + user_id,
+    success: function(data){
+      console.log("got and callTo:"+ user_id);
+      var peerId = data.connect_uid;
+      var call = peer.call(peerId, myStream);
+      var conn = peer.connect(peerId);
 
-        call.on('stream', function(othersStream){
-          $('#others-video').prop('src', URL.createObjectURL(othersStream));
-        });
-        hideDisplay('others-video', false);
-      }
+      call.on('stream', function(othersStream){
+        $('#others-video').prop('src', URL.createObjectURL(othersStream));
+      });
+      hideDisplay('others-video', false);
+    }
   });
 }
 
