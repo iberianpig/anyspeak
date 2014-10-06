@@ -31,9 +31,16 @@
           <%= render partial: 'user_list' %>
         </div>
       </div>
-      <div class="row clearfix" style="margin-top:30px;">
+      <div class="row clearfix" style="margin-top:30px; max-height:300px">
+        <!-- <div class="col&#45;md&#45;10"><input type="text" placeholder="send message" class="form&#45;control" id="message"></div> -->
+        <!-- <div class="col&#45;md&#45;2"><input type="button" class="btn btn&#45;sm btn&#45;default" onClick="sendMessage();" value="send" /></div> -->
+        <div class="input-group">
+          <input type="text" id="message" class="form-control">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" onClick="sendMessage();">send</button>
+          </span>
+        </div>
         <div id="receive_message" class="well"></div>
-        <input type="text" placeholder="send message" class="block" id="message"><input type="button" class="btn btn-sm btn-default" onClick="sendMessage();" value="send" />
       </div>
     </div>
   </div>
@@ -191,12 +198,13 @@ function sendMessage(){
   var message = $("#message").val();
   console.log(message);
   conn.send(message);
-  $( "#receive_message" ).append('<div class="alert alert-info">I: ' + message + '</div>');
+  $( "#receive_message" ).prepend('<p class="bg-info">I: ' + message + '</p>');
+  $("#message").val("");
 }
 
 peer.on('connection', function(conn){
   conn.on('data', function(data){
-    $( "#receive_message" ).append('<div class="alert alert-warning">You: ' + data + '</div>');
+    $( "#receive_message" ).prepend('<div class="bg-warning">You: ' + data + '</p>');
   });
 });
 
