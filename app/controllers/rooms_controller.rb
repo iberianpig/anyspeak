@@ -12,8 +12,8 @@ class RoomsController < ApplicationController
 
   def find_connect_uid
     if logged_in? && params[:user_id]
-      connect_uid = User.find(params[:user_id]).connect_uid
-      render json: { connect_uid: connect_uid }, status: :ok
+      user = User.find(params[:user_id])
+      render json: {name:user.name ,connect_uid: user.connect_uid}, status: :ok
     else
       render json: { msg: 'please login' }, status: :ok
     end

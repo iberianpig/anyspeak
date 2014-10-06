@@ -1,6 +1,6 @@
 <% if logged_in?  %>
   <div class="row">
-    <div class="col-xs-12 col-md-8">
+    <div class="col-xs-12 col-md-7">
       <div class="embed-responsive embed-responsive-4by3">
         <div id="others-jumbotron" class="jumbotron">
           <h2>Enjoy AnySpeak!</h2>
@@ -16,22 +16,24 @@
         <video id="others-video" class="hide" autoplay style="width:100%;"></video>
       </div>
     </div>
-    <div class="col-xs-12 col-md-4">
+    <div class="col-xs-12 col-md-5">
       <div class="row clearfix">
-        <div class="col-xs-4 col-md-6">
+        <div class="col-xs-4 col-md-4">
           <div class="embed-responsive embed-responsive-4by3">
-            <div id="my-jumbotron" class="jumbotron">
-            </div>
+            <div id="my-jumbotron" class="well"><small>ここに自分の映像が表示されます</small></div>
             <video id="my-video" muted autoplay style="width:100%;" ></video>
           </div>
-          <div class="log"></div>
           <div>
-            <%= link_to "disconnect", "", onclick: "resetPeer();",class:"btn btn-warning btn-lg" %> 
+            <%= link_to "disconnect", "", onclick: "resetPeer();",class:"btn btn-warning btn-sm btn-block" %> 
           </div>
         </div>
-        <div id="user_list" class='col-xs-8 col-md-6'>
+        <div id="user_list" class='col-xs-8 col-md-8'>
           <%= render partial: 'user_list' %>
         </div>
+      </div>
+      <div class="row clearfix" style="margin-top:30px;">
+        <div id="receive_message" class="well"></div>
+        <input type="text" placeholder="send message" class="block" id="message"><input type="button" class="btn btn-sm btn-default" onClick="sendMessage();" value="send" />
       </div>
     </div>
   </div>
@@ -58,7 +60,6 @@ function getNewPeer(){
   peer.on('open', function(id){
     my_id = id;
     console.log("my_id): " + my_id);
-    $( "div.log" ).text( "myid: " + my_id);
     startTimer();
   });
 }
@@ -67,7 +68,7 @@ function startTimer(){
   timer_for_update = setInterval(function(){
     updateConnectUid();
     updateUserStatus();
-  },5000);
+  }, 5000);
 }
 
 function stopTimer(){
@@ -138,6 +139,11 @@ $(function(){
   }, function(){});
 });
 
+
+var other_peer_id;
+var other_peer_name;
+var conn;
+
 //target peer id の取得とCall
 function callTo(user_id){
   console.log("find:"+ user_id);
@@ -147,10 +153,10 @@ function callTo(user_id){
     url: "find_connect_uid/" + user_id,
     success: function(data){
       console.log("got and callTo:"+ user_id);
-      var peerId = data.connect_uid;
-      var call = peer.call(peerId, myStream);
-      var conn = peer.connect(peerId);
-
+      other_peer_id = data.connect_uid;
+      other_peer_name = data.name;
+      var call = peer.call(other_peer_id, myStream);
+      conn = peer.connect(other_peer_id);
       call.on('stream', function(othersStream){
         $('#others-video').prop('src', URL.createObjectURL(othersStream));
       });
@@ -159,20 +165,44 @@ function callTo(user_id){
   });
 }
 
-//受信した時の処理
+// function findUser(user_id){
+//   $.ajax({
+//     type: "get",
+//     cache: false,
+//     url: "find_connect_uid/" + user_id,
+//     success: function(data){
+//       other_peer_id = data.connect_uid;
+//       other_peer_name = data.name;
+//       conn = peer.connect(other_peer_id);
+// }
+
+//VideoCall着信時の処理
 peer.on('call', function(call){
   call.answer(myStream);
-
+  conn = peer.connect(call.peer); //テキスト受信用connection
   call.on('stream', function(othersStream){
     $('#others-video').prop('src', URL.createObjectURL(othersStream));
   });
   hideDisplay('others-video', false);
 });
 
+//テキスト送信
+function sendMessage(){
+  var message = $("#message").val();
+  console.log(message);
+  conn.send(message);
+  $( "#receive_message" ).append('<div class="alert alert-info">I: ' + message + '</div>');
+}
+
+peer.on('connection', function(conn){
+  conn.on('data', function(data){
+    $( "#receive_message" ).append('<div class="alert alert-warning">You: ' + data + '</div>');
+  });
+});
+
 //エラー時のログ
 peer.on('error', function(e){
   console.log(e.message);
-  $('div.log').text( e.messge );
 });
 
   </script>
