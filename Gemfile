@@ -12,7 +12,8 @@ gem 'pg', group: [:production]
 #Use Omniauth
 gem 'omniauth'
 gem 'omniauth-facebook'
-gem 'fb_graph'
+# gem 'fb_graph'
+gem 'koala'
 
 # read environment variable from config/application.yml
 gem 'figaro'

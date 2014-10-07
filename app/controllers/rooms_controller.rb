@@ -4,9 +4,14 @@ class RoomsController < ApplicationController
 
   def index
     if logged_in?
-      @users = User.where.not(id: current_user.id)
+      # @users = User.where.not(id: current_user.id)
+      access_token = current_user.token
+      @graph = Koala::Facebook::API.new(access_token)
+      # profile = @graph.get_object('me')
+      friends = @graph.get_connections('me', 'friends')
+      @users = User.where(uid: friends.map{|friend| friend['id']})
     else
-      @users = User.none if @users.nil?
+      @users = User.none
     end
   end
 
